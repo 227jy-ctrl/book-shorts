@@ -1,0 +1,1013 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BookShorts - 책 한 권을 5분 안에</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .app-container {
+            max-width: 480px;
+            min-height: 100vh;
+            margin: 0 auto;
+            background: white;
+            position: relative;
+            box-shadow: 0 0 50px rgba(0,0,0,0.3);
+        }
+
+        /* Main Page Styles */
+        .main-page {
+            display: block;
+        }
+
+        .main-page.hidden {
+            display: none;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .hero p {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .search-section {
+            padding: 30px;
+            background: white;
+            margin-top: -20px;
+            border-radius: 20px 20px 0 0;
+        }
+
+        .search-box {
+            position: relative;
+            margin-bottom: 30px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 15px 50px 15px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 20px;
+            color: #999;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .book-grid {
+            display: grid;
+            gap: 15px;
+        }
+
+        .book-card {
+            background: white;
+            border: 2px solid #f0f0f0;
+            border-radius: 15px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            gap: 15px;
+        }
+
+        .book-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .book-cover {
+            width: 80px;
+            height: 110px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            flex-shrink: 0;
+        }
+
+        .book-info {
+            flex: 1;
+        }
+
+        .book-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 5px;
+        }
+
+        .book-author {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .book-meta {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .meta-tag {
+            background: #f0f0f0;
+            padding: 5px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .meta-tag.reading-time {
+            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .category-chips {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+        }
+
+        .category-chips::-webkit-scrollbar {
+            height: 0;
+        }
+
+        .chip {
+            padding: 10px 20px;
+            background: #f0f0f0;
+            border-radius: 20px;
+            font-size: 14px;
+            color: #666;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .chip.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
+        }
+
+        /* Reading Page Styles */
+        .reading-page {
+            display: none;
+            height: 100vh;
+            flex-direction: column;
+        }
+
+        .reading-page.active {
+            display: flex;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .back-btn {
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .header-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .time {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .progress-bar {
+            height: 4px;
+            background: rgba(102, 126, 234, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s ease;
+            box-shadow: 0 0 10px rgba(102, 126, 234, 0.5);
+        }
+
+        .content-container {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .slide {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            padding: 40px 30px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s ease;
+            opacity: 0;
+            transform: translateX(100%);
+        }
+
+        .slide.active {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .slide.prev {
+            opacity: 0;
+            transform: translateX(-100%);
+        }
+
+        .slide-number {
+            font-size: 14px;
+            color: #667eea;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+
+        .slide-title {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1a1a1a;
+            margin-bottom: 20px;
+            line-height: 1.3;
+        }
+
+        .slide-content {
+            font-size: 18px;
+            line-height: 1.8;
+            color: #444;
+            margin-bottom: 30px;
+        }
+
+        .slide-icon {
+            font-size: 60px;
+            margin-bottom: 20px;
+        }
+
+        .key-point {
+            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+            padding: 20px;
+            border-radius: 15px;
+            border-left: 4px solid #667eea;
+            margin-top: 20px;
+            font-size: 16px;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .controls {
+            padding: 20px 30px;
+            background: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-prev {
+            background: #f0f0f0;
+            color: #666;
+        }
+
+        .btn-prev:hover {
+            background: #e0e0e0;
+        }
+
+        .btn-next {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-next:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .completion-screen {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .completion-screen.show {
+            display: flex;
+        }
+
+        .completion-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            animation: scaleIn 0.5s ease;
+        }
+
+        @keyframes scaleIn {
+            from { transform: scale(0); }
+            to { transform: scale(1); }
+        }
+
+        .completion-title {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .completion-text {
+            font-size: 18px;
+            opacity: 0.9;
+            margin-bottom: 30px;
+        }
+
+        .btn-restart {
+            background: white;
+            color: #667eea;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 30px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .btn-restart:hover {
+            transform: scale(1.05);
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+        }
+
+        .no-results-icon {
+            font-size: 60px;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Main Page -->
+        <div class="main-page" id="mainPage">
+            <div class="hero">
+                <h1>📚 BookShorts</h1>
+                <p>책 한 권을 5분 안에, 핵심만 쏙쏙</p>
+            </div>
+
+            <div class="search-section">
+                <div class="search-box">
+                    <input type="text" class="search-input" id="searchInput" placeholder="읽고 싶은 책을 검색하세요">
+                    <span class="search-icon">🔍</span>
+                </div>
+
+                <div class="category-chips" id="categoryChips">
+                    <div class="chip active" data-category="all">전체</div>
+                    <div class="chip" data-category="self">자기계발</div>
+                    <div class="chip" data-category="business">비즈니스</div>
+                    <div class="chip" data-category="psychology">심리학</div>
+                    <div class="chip" data-category="science">과학</div>
+                </div>
+
+                <div class="section-title">
+                    🔥 인기 도서
+                </div>
+
+                <div class="book-grid" id="bookGrid">
+                    <!-- Books will be inserted here -->
+                </div>
+
+                <div class="no-results" id="noResults" style="display: none;">
+                    <div class="no-results-icon">📭</div>
+                    <p>검색 결과가 없습니다</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reading Page -->
+        <div class="reading-page" id="readingPage">
+            <div class="header">
+                <button class="back-btn" id="backBtn">← 목록</button>
+                <div class="header-title" id="currentBookTitle">BookShorts</div>
+                <div class="time">⏱️ <span id="readingTime">5분</span></div>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+
+            <div class="content-container" id="contentContainer">
+                <!-- Slides will be inserted here -->
+            </div>
+
+            <div class="controls">
+                <button class="btn btn-prev" id="prevBtn" disabled>← 이전</button>
+                <button class="btn btn-next" id="nextBtn">다음 →</button>
+            </div>
+
+            <div class="completion-screen" id="completionScreen">
+                <div class="completion-icon">🎉</div>
+                <div class="completion-title">완독하셨습니다!</div>
+                <div class="completion-text" id="completionText">
+                    5분 만에 핵심 내용을 모두 읽으셨습니다.
+                </div>
+                <button class="btn-restart" id="restartBtn">목록으로 돌아가기</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Book data
+        const books = [
+            {
+                id: 1,
+                title: '아주 작은 습관의 힘',
+                author: '제임스 클리어',
+                category: 'self',
+                readingTime: '5분',
+                icon: '🎯',
+                slides: [
+                    {
+                        icon: '🎯',
+                        number: '1/8',
+                        title: '1%의 개선이 만드는 기적',
+                        content: '매일 1%씩만 개선하면 1년 후에는 37배 더 나아진다. 반대로 매일 1%씩 나빠지면 거의 0에 가까워진다.',
+                        keyPoint: '💡 작은 습관은 복리 효과를 만든다. 당장의 변화는 미미해 보이지만, 시간이 지나면 엄청난 차이를 만든다.'
+                    },
+                    {
+                        icon: '🔄',
+                        number: '2/8',
+                        title: '습관의 4단계 법칙',
+                        content: '신호 → 욕구 → 반응 → 보상<br><br>좋은 습관을 만들려면 이 4단계를 쉽게 만들고, 나쁜 습관을 없애려면 어렵게 만들어야 한다.',
+                        keyPoint: '💡 습관은 뇌의 자동화 시스템이다. 이 법칙을 이해하면 습관을 의도적으로 설계할 수 있다.'
+                    },
+                    {
+                        icon: '👤',
+                        number: '3/8',
+                        title: '정체성 기반 습관',
+                        content: '"담배를 끊고 싶어"가 아니라 "나는 비흡연자야"라고 생각하라.<br><br>행동이 아닌 정체성에 초점을 맞추면 습관이 더 오래 지속된다.',
+                        keyPoint: '💡 "내가 되고 싶은 사람은 어떤 사람일까?"를 먼저 묻고, 그 사람이 할 행동을 하라.'
+                    },
+                    {
+                        icon: '👁️',
+                        number: '4/8',
+                        title: '명확하게 만들어라',
+                        content: '"운동을 하겠어" 대신<br>"월/수/금 오전 7시에 집 근처 헬스장에서 30분간 운동하겠어"<br><br>구체적일수록 실행 확률이 높아진다.',
+                        keyPoint: '💡 실행 의도: 언제, 어디서 할지 명확히 정하면 성공률이 2배 이상 높아진다.'
+                    },
+                    {
+                        icon: '✨',
+                        number: '5/8',
+                        title: '매력적으로 만들어라',
+                        content: '좋아하는 것과 해야 할 것을 묶어라.<br><br>예: 좋아하는 음악은 운동할 때만 듣기. 좋아하는 카페는 공부할 때만 가기.',
+                        keyPoint: '💡 유혹 묶기: 하고 싶은 행동 + 해야 하는 행동 = 강력한 습관'
+                    },
+                    {
+                        icon: '⚡',
+                        number: '6/8',
+                        title: '쉽게 만들어라',
+                        content: '완벽하게 하려 하지 말고 시작하는 것에 집중하라.<br><br>2분 규칙: 새로운 습관은 2분 안에 할 수 있는 것부터 시작하라.',
+                        keyPoint: '💡 "책 한 장 읽기", "운동복 입기", "신발끈 묶기"처럼 아주 작게 시작하라.'
+                    },
+                    {
+                        icon: '🎁',
+                        number: '7/8',
+                        title: '만족스럽게 만들어라',
+                        content: '즉각적인 보상을 주면 습관이 강화된다.<br><br>습관 추적기를 사용하거나, 작은 보상을 설정하라. "체크 표시"만으로도 충분한 보상이 된다.',
+                        keyPoint: '💡 "하루도 거르지 않기" 규칙: 연속 기록을 깨지 않는 것 자체가 강력한 동기가 된다.'
+                    },
+                    {
+                        icon: '🏆',
+                        number: '8/8',
+                        title: '환경이 습관을 만든다',
+                        content: '좋은 습관은 눈에 띄게, 나쁜 습관은 보이지 않게 만들어라.<br><br>책을 읽고 싶다면 침대 옆에 책을 두고, TV 리모컨은 서랍에 넣어라.',
+                        keyPoint: '💡 환경을 바꾸면 의지력 없이도 습관이 바뀐다. 자제력이 아닌 환경 설계가 답이다.'
+                    }
+                ]
+            },
+            {
+                id: 2,
+                title: '생각에 관한 생각',
+                author: '대니얼 카너먼',
+                category: 'psychology',
+                readingTime: '7분',
+                icon: '🧠',
+                slides: [
+                    {
+                        icon: '🧠',
+                        number: '1/6',
+                        title: '두 가지 사고 시스템',
+                        content: '시스템 1: 빠르고 직관적, 자동적<br>시스템 2: 느리고 논리적, 의식적<br><br>우리는 대부분 시스템 1로 생각하고 살아간다.',
+                        keyPoint: '💡 시스템 1은 빠르지만 편향에 취약하다. 중요한 결정은 시스템 2를 활성화해야 한다.'
+                    },
+                    {
+                        icon: '⚓',
+                        number: '2/6',
+                        title: '닻내림 효과',
+                        content: '처음 접한 정보가 기준점이 되어 이후 판단에 영향을 미친다.<br><br>예: "이 시계가 1000만원입니다" → "할인가 500만원"이 저렴하게 느껴진다.',
+                        keyPoint: '💡 첫 인상과 초기 정보를 의심하라. 의도적으로 다른 기준점을 찾아보자.'
+                    },
+                    {
+                        icon: '📊',
+                        number: '3/6',
+                        title: '가용성 휴리스틱',
+                        content: '쉽게 떠오르는 사례를 더 흔한 것으로 착각한다.<br><br>비행기 사고 뉴스를 보면 비행기가 위험하다고 느끼지만, 실제로는 자동차가 훨씬 위험하다.',
+                        keyPoint: '💡 생생한 기억이나 최근 경험에 현혹되지 말고 실제 통계를 확인하라.'
+                    },
+                    {
+                        icon: '🎲',
+                        number: '4/6',
+                        title: '손실 회피',
+                        content: '같은 크기의 이득보다 손실이 2배 더 고통스럽다.<br><br>5만원을 얻는 기쁨 < 5만원을 잃는 고통',
+                        keyPoint: '💡 손실을 과도하게 두려워하면 좋은 기회를 놓친다. 장기적 관점에서 생각하라.'
+                    },
+                    {
+                        icon: '🔮',
+                        number: '5/6',
+                        title: '과신의 함정',
+                        content: '우리는 자신의 지식과 예측 능력을 과대평가한다.<br><br>전문가조차 미래를 정확히 예측하지 못하지만, 자신감은 넘친다.',
+                        keyPoint: '💡 "내가 틀릴 수도 있다"는 전제로 시작하라. 겸손이 더 나은 결정을 만든다.'
+                    },
+                    {
+                        icon: '🎯',
+                        number: '6/6',
+                        title: '프레이밍 효과',
+                        content: '같은 내용도 표현 방식에 따라 다르게 느껴진다.<br><br>"90% 성공률" vs "10% 실패율" → 같은 의미지만 느낌은 다르다.',
+                        keyPoint: '💡 정보를 다양한 관점에서 재구성해보라. 본질을 파악하는 연습이 필요하다.'
+                    }
+                ]
+            },
+            {
+                id: 3,
+                title: '딥 워크',
+                author: '칼 뉴포트',
+                category: 'business',
+                readingTime: '6분',
+                icon: '💼',
+                slides: [
+                    {
+                        icon: '💼',
+                        number: '1/7',
+                        title: '딥 워크란 무엇인가',
+                        content: '주의를 산만하게 하는 요소 없이 인지적으로 까다로운 일에 집중하는 능력.<br><br>현대에서 가장 가치 있지만 점점 더 희귀해지는 기술이다.',
+                        keyPoint: '💡 딥 워크는 단순히 오래 일하는 것이 아니라, 깊이 집중하는 것이다.'
+                    },
+                    {
+                        icon: '⏰',
+                        number: '2/7',
+                        title: '4가지 딥 워크 전략',
+                        content: '1. 수도승 방식: 모든 것을 차단<br>2. 이중 모드: 정기적으로 고립<br>3. 리듬 방식: 매일 같은 시간<br>4. 저널리스트 방식: 틈날 때마다',
+                        keyPoint: '💡 자신의 생활 패턴에 맞는 방식을 선택하라. 완벽한 한 가지 방법은 없다.'
+                    },
+                    {
+                        icon: '🚫',
+                        number: '3/7',
+                        title: '주의 잔여물의 위험',
+                        content: 'A 작업에서 B 작업으로 전환할 때, A에 대한 생각이 남아있어 B에 완전히 집중할 수 없다.<br><br>멀티태스킹은 생산성의 적이다.',
+                        keyPoint: '💡 한 번에 한 가지만 하라. 작업 전환 최소화가 핵심이다.'
+                    },
+                    {
+                        icon: '📱',
+                        number: '4/7',
+                        title: '소셜 미디어 끊기',
+                        content: '소셜 미디어는 우리의 집중력을 파괴한다.<br><br>30일간 끊어보고, 정말 필요한지 평가하라. 대부분은 없어도 괜찮다.',
+                        keyPoint: '💡 "혹시 유용할까봐"는 사용 이유가 아니다. 명확한 가치가 있을 때만 사용하라.'
+                    },
+                    {
+                        icon: '🏗️',
+                        number: '5/7',
+                        title: '의례와 루틴',
+                        content: '같은 장소, 같은 시간, 같은 방식으로 일하라.<br><br>의지력은 한정되어 있다. 루틴으로 의사결정을 줄여라.',
+                        keyPoint: '💡 매일 "언제, 어디서 딥 워크를 할까?" 고민하지 마라. 루틴을 만들어라.'
+                    },
+                    {
+                        icon: '🧘',
+                        number: '6/7',
+                        title: '다운타임의 중요성',
+                        content: '완전한 휴식이 있어야 깊은 집중이 가능하다.<br><br>저녁 시간과 주말에는 업무 생각을 완전히 차단하라.',
+                        keyPoint: '💡 "항상 일하기"는 생산성이 아니다. 진짜 쉬어야 진짜 일할 수 있다.'
+                    },
+                    {
+                        icon: '📈',
+                        number: '7/7',
+                        title: '얕은 일 최소화',
+                        content: '이메일, 회의, 행정 업무 같은 "얕은 일"을 최소한으로 줄여라.<br><br>딥 워크에 더 많은 시간을 확보하는 것이 목표다.',
+                        keyPoint: '💡 "바쁨"과 "생산성"은 다르다. 정말 중요한 일에만 시간을 쓰라.'
+                    }
+                ]
+            },
+            {
+                id: 4,
+                title: '사피엔스',
+                author: '유발 하라리',
+                category: 'science',
+                readingTime: '8분',
+                icon: '🌍',
+                slides: [
+                    {
+                        icon: '🌍',
+                        number: '1/5',
+                        title: '인지 혁명',
+                        content: '7만 년 전, 호모 사피엔스는 허구를 믿는 능력을 획득했다.<br><br>신화, 종교, 국가, 회사 - 모두 집단적 허구다.',
+                        keyPoint: '💡 허구를 공유하면 대규모 협력이 가능하다. 이것이 인간을 지배 종으로 만들었다.'
+                    },
+                    {
+                        icon: '🌾',
+                        number: '2/5',
+                        title: '농업 혁명',
+                        content: '1만 2천 년 전, 인류는 농업을 시작했다.<br><br>하지만 이것은 "역사상 최대의 사기"였다. 개인의 삶은 더 힘들어졌다.',
+                        keyPoint: '💡 농업은 인구를 늘렸지만, 개인의 행복을 보장하지 않았다.'
+                    },
+                    {
+                        icon: '👑',
+                        number: '3/5',
+                        title: '상상의 질서',
+                        content: '돈, 제국, 종교 - 모두 인간이 만든 허구지만, 우리는 그것을 현실로 믿는다.<br><br>이 믿음이 문명을 만들었다.',
+                        keyPoint: '💡 우리가 믿는 대부분의 "진실"은 사회적 구성물이다.'
+                    },
+                    {
+                        icon: '🔬',
+                        number: '4/5',
+                        title: '과학 혁명',
+                        content: '500년 전, 인류는 "무지를 인정"하기 시작했다.<br><br>"우리는 모른다"는 고백이 과학의 출발점이었다.',
+                        keyPoint: '💡 지식의 진보는 "우리는 모든 것을 안다"가 아니라 "우리는 모른다"에서 시작된다.'
+                    },
+                    {
+                        icon: '🤖',
+                        number: '5/5',
+                        title: '미래의 인간',
+                        content: '생명공학, AI, 사이보그 - 호모 사피엔스는 스스로를 재설계하고 있다.<br><br>우리는 어떤 존재가 되고 싶은가?',
+                        keyPoint: '💡 기술은 무엇이든 가능하게 만들지만, 무엇을 원하는지는 우리가 선택해야 한다.'
+                    }
+                ]
+            },
+            {
+                id: 5,
+                title: '그릿',
+                author: '앤절라 더크워스',
+                category: 'self',
+                readingTime: '5분',
+                icon: '💪',
+                slides: [
+                    {
+                        icon: '💪',
+                        number: '1/6',
+                        title: 'IQ보다 중요한 것',
+                        content: '성공을 예측하는 가장 강력한 요인은 재능이 아니라 "그릿(GRIT)"이다.<br><br>열정 + 끈기 = 그릿',
+                        keyPoint: '💡 천재성보다 꾸준함이 더 중요하다. 장기적 목표에 대한 지속적 노력이 승리한다.'
+                    },
+                    {
+                        icon: '🎯',
+                        number: '2/6',
+                        title: '최상위 목표 설정',
+                        content: '모든 노력은 하나의 최상위 목표를 향해야 한다.<br><br>작은 목표들은 큰 목표에 기여해야 의미가 있다.',
+                        keyPoint: '💡 "내 인생의 나침반은 무엇인가?"를 명확히 하라. 그것이 그릿의 시작이다.'
+                    },
+                    {
+                        icon: '📈',
+                        number: '3/6',
+                        title: '의도적 연습',
+                        content: '단순 반복이 아닌 "의도적 연습"이 실력을 만든다.<br><br>약점에 집중하고, 피드백을 받고, 조금씩 개선하라.',
+                        keyPoint: '💡 1만 시간의 법칙은 맞다. 하지만 "어떻게" 연습하느냐가 더 중요하다.'
+                    },
+                    {
+                        icon: '🌱',
+                        number: '4/6',
+                        title: '성장 마인드셋',
+                        content: '능력은 고정된 것이 아니라 계발할 수 있다고 믿어라.<br><br>"나는 못해" → "아직 못해"',
+                        keyPoint: '💡 실패를 "능력 부족"이 아닌 "아직 배우는 중"으로 해석하라.'
+                    },
+                    {
+                        icon: '🏃',
+                        number: '5/6',
+                        title: '어려운 것 해내기',
+                        content: '아이들에게 최소 1가지는 끝까지 해내게 하라.<br><br>중간에 그만두지 않고 한 시즌을 완수하는 경험이 그릿을 키운다.',
+                        keyPoint: '💡 작은 성취를 반복하면 "나는 해낼 수 있다"는 믿음이 생긴다.'
+                    },
+                    {
+                        icon: '🎪',
+                        number: '6/6',
+                        title: '열정 찾기',
+                        content: '열정은 발견하는 것이 아니라 개발하는 것이다.<br><br>다양하게 시도하고, 시간을 투자하고, 의미를 찾아라.',
+                        keyPoint: '💡 "내 열정이 뭐지?"보다 "이것을 더 깊이 파볼까?"가 시작이다.'
+                    }
+                ]
+            }
+        ];
+
+        let currentCategory = 'all';
+        let currentBook = null;
+        let currentSlide = 0;
+
+        // DOM Elements
+        const mainPage = document.getElementById('mainPage');
+        const readingPage = document.getElementById('readingPage');
+        const searchInput = document.getElementById('searchInput');
+        const categoryChips = document.getElementById('categoryChips');
+        const bookGrid = document.getElementById('bookGrid');
+        const noResults = document.getElementById('noResults');
+        const backBtn = document.getElementById('backBtn');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const progressFill = document.getElementById('progressFill');
+        const contentContainer = document.getElementById('contentContainer');
+        const completionScreen = document.getElementById('completionScreen');
+        const restartBtn = document.getElementById('restartBtn');
+        const currentBookTitle = document.getElementById('currentBookTitle');
+        const readingTime = document.getElementById('readingTime');
+        const completionText = document.getElementById('completionText');
+
+        // Initialize
+        function init() {
+            renderBooks();
+            attachEventListeners();
+        }
+
+        // Render books
+        function renderBooks(searchQuery = '') {
+            const filteredBooks = books.filter(book => {
+                const matchesCategory = currentCategory === 'all' || book.category === currentCategory;
+                const matchesSearch = book.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                                    book.author.toLowerCase().includes(searchQuery.toLowerCase());
+                return matchesCategory && matchesSearch;
+            });
+
+            if (filteredBooks.length === 0) {
+                bookGrid.style.display = 'none';
+                noResults.style.display = 'block';
+                return;
+            }
+
+            bookGrid.style.display = 'grid';
+            noResults.style.display = 'none';
+
+            bookGrid.innerHTML = filteredBooks.map(book => `
+                <div class="book-card" data-book-id="${book.id}">
+                    <div class="book-cover">${book.icon}</div>
+                    <div class="book-info">
+                        <div class="book-title">${book.title}</div>
+                        <div class="book-author">${book.author}</div>
+                        <div class="book-meta">
+                            <span class="meta-tag reading-time">⏱️ ${book.readingTime}</span>
+                            <span class="meta-tag">${getCategoryName(book.category)}</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            // Attach click events to book cards
+            document.querySelectorAll('.book-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    const bookId = parseInt(card.dataset.bookId);
+                    openBook(bookId);
+                });
+            });
+        }
+
+        function getCategoryName(category) {
+            const categories = {
+                'self': '자기계발',
+                'business': '비즈니스',
+                'psychology': '심리학',
+                'science': '과학'
+            };
+            return categories[category] || category;
+        }
+
+        // Open book
+        function openBook(bookId) {
+            currentBook = books.find(b => b.id === bookId);
+            if (!currentBook) return;
+
+            currentSlide = 0;
+            mainPage.classList.add('hidden');
+            readingPage.classList.add('active');
+            currentBookTitle.textContent = currentBook.title;
+            readingTime.textContent = currentBook.readingTime;
+
+            renderSlides();
+            updateProgress();
+            updateButtons();
+        }
+
+        // Render slides
+        function renderSlides() {
+            contentContainer.innerHTML = currentBook.slides.map((slide, index) => `
+                <div class="slide ${index === 0 ? 'active' : ''}">
+                    <div class="slide-icon">${slide.icon}</div>
+                    <div class="slide-number">핵심 ${slide.number}</div>
+                    <div class="slide-title">${slide.title}</div>
+                    <div class="slide-content">${slide.content}</div>
+                    <div class="key-point">${slide.keyPoint}</div>
+                </div>
+            `).join('');
+        }
+
+        // Navigation functions
+        function nextSlide() {
+            const slides = contentContainer.querySelectorAll('.slide');
+            if (currentSlide < slides.length - 1) {
+                currentSlide++;
+                showSlide(currentSlide);
+            } else {
+                completionText.innerHTML = `5분 만에 '${currentBook.title}'의<br>핵심 내용을 모두 읽으셨습니다.`;
+                completionScreen.classList.add('show');
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 0) {
+                currentSlide--;
+                showSlide(currentSlide);
+            }
+        }
+
+        function showSlide(index) {
+            const slides = contentContainer.querySelectorAll('.slide');
+            slides.forEach((slide, i) => {
+                slide.classList.remove('active', 'prev');
+                if (i === index) {
+                    slide.classList.add('active');
+                } else if (i < index) {
+                    slide.classList.add('prev');
+                }
+            });
+            updateProgress();
+            updateButtons();
+        }
+
+        function updateProgress() {
+            const slides = contentContainer.querySelectorAll('.slide');
+            const progress = ((currentSlide + 1) / slides.length) * 100;
+            progressFill.style.width = progress + '%';
+        }
+
+        function updateButtons() {
+            const slides = contentContainer.querySelectorAll('.slide');
+            prevBtn.disabled = currentSlide === 0;
+            nextBtn.textContent = currentSlide === slides.length - 1 ? '완료 ✓' : '다음 →';
+        }
+
+        function goBackToList() {
+            mainPage.classList.remove('hidden');
+            readingPage.classList.remove('active');
+            completionScreen.classList.remove('show');
+            currentBook = null;
+            currentSlide = 0;
+        }
+
+        // Event listeners
+        function attachEventListeners() {
+            // Search
+            searchInput.addEventListener('input', (e) => {
+                renderBooks(e.target.value);
+            });
+
+            // Category chips
+            categoryChips.addEventListener('click', (e) => {
+                if (e.target.classList.contains('chip')) {
+                    document.querySelectorAll('.chip').forEach(chip => {
+                        chip.classList.remove('active');
+                    });
+                    e.target.classList.add('active');
+                    currentCategory = e.target.dataset.category;
+                    renderBooks(searchInput.value);
+                }
+            });
+
+            // Navigation buttons
+            backBtn.addEventListener('click', goBackToList);
+            nextBtn.addEventListener('click', nextSlide);
+            prevBtn.addEventListener('click', prevSlide);
+            restartBtn.addEventListener('click', goBackToList);
+
+            // Keyboard navigation
+            document.addEventListener('keydown', (e) => {
+                if (readingPage.classList.contains('active') && !completionScreen.classList.contains('show')) {
+                    if (e.key === 'ArrowRight') nextSlide();
+                    if (e.key === 'ArrowLeft') prevSlide();
+                    if (e.key === 'Escape') goBackToList();
+                }
+            });
+
+            // Touch swipe
+            let touchStartX = 0;
+            let touchEndX = 0;
+
+            contentContainer.addEventListener('touchstart', (e) => {
+                touchStartX = e.changedTouches[0].screenX;
+            });
+
+            contentContainer.addEventListener('touchend', (e) => {
+                touchEndX = e.changedTouches[0].screenX;
+                const swipeThreshold = 50;
+                if (touchStartX - touchEndX > swipeThreshold) {
+                    nextSlide();
+                }
+                if (touchEndX - touchStartX > swipeThreshold) {
+                    prevSlide();
+                }
+            });
+        }
+
+        // Start app
+        init();
+    </script>
+</body>
+</html>
